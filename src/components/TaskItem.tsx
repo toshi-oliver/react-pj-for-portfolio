@@ -3,6 +3,8 @@ import { PencilIcon, TrashIcon } from '@heroicons/react/24/solid'
 import useStore from '../store'
 import { Task } from '../types'
 import { useMutateTask } from '../hooks/useMutateTask'
+import { useQueryClient } from '@tanstack/react-query'
+
 
 const TaskItemMemo: FC<Omit<Task, 'created_at' | 'updated_at'>> = ({
   id,
@@ -10,6 +12,16 @@ const TaskItemMemo: FC<Omit<Task, 'created_at' | 'updated_at'>> = ({
 }) => {
   const updateTask = useStore((state) => state.updateEditedTask)
   const { deleteTaskMutation } = useMutateTask()
+  const queryClient = useQueryClient()
+
+  const handleDelete = () => {
+    deleteTaskMutation.mutate(id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['tasks'])
+      },
+    })
+  }
+
   return (
     <li className="my-3">
       <span className="font-bold">{title}</span>
@@ -25,9 +37,7 @@ const TaskItemMemo: FC<Omit<Task, 'created_at' | 'updated_at'>> = ({
         />
         <TrashIcon
           className="h-5 w-5 text-blue-500 cursor-pointer"
-          onClick={() => {
-            deleteTaskMutation.mutate(id)
-          }}
+          onClick={handleDelete}
         />
       </div>
     </li>

@@ -4,6 +4,14 @@ export type Task = {
   created_at: Date
   updated_at: Date
 }
+
+export type TasksResponse = {
+  tasks: Task[]
+  currentPage: number
+  lastPage: number
+  totalCount: number
+}
+
 export type CsrfToken = {
   csrf_token: string
 }
