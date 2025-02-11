@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react'
-import { CheckBadgeIcon, ArrowPathIcon } from '@heroicons/react/24/solid'
+import { CakeIcon, ArrowPathIcon } from '@heroicons/react/24/solid'
 import { useMutateAuth } from '../hooks/useMutateAuth'
 
 export const Auth = () => {
@@ -32,9 +32,9 @@ export const Auth = () => {
   return (
     <div className="flex justify-center items-center flex-col min-h-screen text-gray-600 font-mono">
       <div className="flex items-center">
-        <CheckBadgeIcon className="h-8 w-8 mr-2 text-blue-500" />
+        <CakeIcon className="h-8 w-8 mr-3 text-indigo-500 cursor-pointer" />
         <span className="text-center text-3xl font-extrabold">
-          Todo app by React/Go(Echo)
+          RecipeManager
         </span>
       </div>
       <h2 className="my-6">{isLogin ? 'Login' : 'Create a new account'}</h2>
