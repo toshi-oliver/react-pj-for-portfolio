@@ -34,7 +34,7 @@ export const Auth = () => {
       <div className="flex items-center">
         <CakeIcon className="h-8 w-8 mr-3 text-indigo-500 cursor-pointer" />
         <span className="text-center text-3xl font-extrabold">
-          RecipeManager
+          Recipe Manager
         </span>
       </div>
       <h2 className="my-6">{isLogin ? 'Login' : 'Create a new account'}</h2>
