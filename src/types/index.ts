@@ -1,8 +1,9 @@
 export type Task = {
   id: number
-  title: string
-  created_at: Date
-  updated_at: Date
+  menuTitle: string
+  menuDetail: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export type TasksResponse = {

@@ -1,10 +1,9 @@
 import { useState, FormEvent } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import {
-  ArrowRightOnRectangleIcon,
-  ShieldCheckIcon,
+  ArrowLeftOnRectangleIcon,
+  CakeIcon,
 } from '@heroicons/react/24/solid'
-import useStore from '../store'
 import { useQueryTasks } from '../hooks/useQueryTasks'
 import { useMutateTask } from '../hooks/useMutateTask'
 import { useMutateAuth } from '../hooks/useMutateAuth'
@@ -13,31 +12,23 @@ import { TaskItem } from './TaskItem'
 
 export const Todo = () => {
   const queryClient = useQueryClient()
-  const { editedTask } = useStore()
-  const updateTask = useStore((state) => state.updateEditedTask)
+  const [menuTitle, setMenuTitle] = useState('')
   const [page, setPage] = useState(1)
   const { data, isLoading } = useQueryTasks(page)
-  const { createTaskMutation, updateTaskMutation } = useMutateTask()
+  const { createTaskMutation } = useMutateTask()
   const { logoutMutation } = useMutateAuth()
 
   const submitTaskHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (editedTask.id === 0) {
-      createTaskMutation.mutate(
-        { title: editedTask.title },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries(['tasks'])
-          },
-        }
-      )
-    } else {
-      updateTaskMutation.mutate(editedTask, {
+    createTaskMutation.mutate(
+      { menuTitle },
+      {
         onSuccess: () => {
           queryClient.invalidateQueries(['tasks'])
+          setMenuTitle('') // 作成後に入力フィールドをリセット
         },
-      })
-    }
+      }
+    )
   }
 
   const handlePageChange = (pageNumber: number) => {
@@ -52,43 +43,50 @@ export const Todo = () => {
   return (
     <div className="flex justify-center items-center flex-col min-h-screen text-gray-600 font-mono">
       <div className="flex items-center my-3">
-        <ShieldCheckIcon className="h-8 w-8 mr-3 text-indigo-500 cursor-pointer" />
+        <CakeIcon className="h-8 w-8 mr-3 text-indigo-500 cursor-pointer" />
         <span className="text-center text-3xl font-extrabold">
-          AI Manager
+          Recipe Manager
         </span>
       </div>
-      <ArrowRightOnRectangleIcon
+      <ArrowLeftOnRectangleIcon
         onClick={logout}
         className="h-6 w-6 my-6 text-blue-500 cursor-pointer"
       />
       <form onSubmit={submitTaskHandler}>
         <input
           className="mb-3 mr-3 px-3 py-2 border border-gray-300"
-          placeholder="title ?"
+          placeholder="料理名を入力してね"
           type="text"
-          onChange={(e) => updateTask({ ...editedTask, title: e.target.value })}
-          value={editedTask.title || ''}
+          value={menuTitle}
+          onChange={(e) => setMenuTitle(e.target.value)}
         />
         <button
           className="disabled:opacity-40 mx-3 py-2 px-3 text-white bg-indigo-600 rounded"
-          disabled={!editedTask.title}
+          disabled={!menuTitle || createTaskMutation.isLoading}
         >
-          {editedTask.id === 0 ? 'Create' : 'Update'}
+          {createTaskMutation.isLoading ? 'レシピを検索中...' : 'レシピを検索する'}
         </button>
       </form>
       {data && (
         <div className="w-full max-w-md my-4 p-3 flex justify-center">
           <span className="text-gray-700 font-semibold">
-            Total tasks: {data.totalCount}
+            Total Recipes: {data.totalCount}
           </span>
         </div>
       )}
       {isLoading ? (
         <p>Loading...</p>
+      ) : data?.tasks.length === 0 ? (
+        <p>新しいレシピを追加してみましょう！</p>
       ) : (
         <ul className="my-5">
           {data?.tasks.map((task) => (
-            <TaskItem key={task.id} id={task.id} title={task.title} />
+            <TaskItem
+              key={task.id}
+              id={task.id}
+              menuTitle={task.menuTitle}
+              menuDetail={task.menuDetail}
+            />
           ))}
         </ul>
       )}

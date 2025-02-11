@@ -1,20 +1,22 @@
 import { FC, memo } from 'react'
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/solid'
-import useStore from '../store'
+import { TrashIcon } from '@heroicons/react/24/solid'
 import { Task } from '../types'
 import { useMutateTask } from '../hooks/useMutateTask'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 
 
-const TaskItemMemo: FC<Omit<Task, 'created_at' | 'updated_at'>> = ({
+const TaskItemMemo: FC<Omit<Task, 'createdAt' | 'updatedAt'>> = ({
   id,
-  title,
+  menuTitle,
+  menuDetail
 }) => {
-  const updateTask = useStore((state) => state.updateEditedTask)
   const { deleteTaskMutation } = useMutateTask()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
-  const handleDelete = () => {
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation()
     deleteTaskMutation.mutate(id, {
       onSuccess: () => {
         queryClient.invalidateQueries(['tasks'])
@@ -22,19 +24,14 @@ const TaskItemMemo: FC<Omit<Task, 'created_at' | 'updated_at'>> = ({
     })
   }
 
+  const handleClick = () => {
+    navigate(`/task/${id}`, { state: { menuTitle, menuDetail } })
+  }
+
   return (
-    <li className="my-3">
-      <span className="font-bold">{title}</span>
+    <li className="my-3 cursor-pointer" onClick={handleClick}>
+      <span className="font-bold">{menuTitle}</span>
       <div className="flex float-right ml-20">
-        <PencilIcon
-          className="h-5 w-5 mx-1 text-blue-500 cursor-pointer"
-          onClick={() => {
-            updateTask({
-              id: id,
-              title: title,
-            })
-          }}
-        />
         <TrashIcon
           className="h-5 w-5 text-blue-500 cursor-pointer"
           onClick={handleDelete}
